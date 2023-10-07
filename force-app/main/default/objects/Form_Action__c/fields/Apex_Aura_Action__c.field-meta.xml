@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Apex_Aura_Action__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <externalId>false</externalId>
+    <label>Apex/AuraAction</label>
+    <referenceTo>Apex_Aura_Action__c</referenceTo>
+    <relationshipLabel>Apex Aura Actions</relationshipLabel>
+    <relationshipName>Apex_Aura_Actions</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>
