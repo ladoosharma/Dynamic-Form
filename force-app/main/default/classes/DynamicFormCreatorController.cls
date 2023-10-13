@@ -5,6 +5,7 @@ public without sharing class DynamicFormCreatorController {
     private static Map<String, List<sObject>> fieldActionMap;
     private static Map<String, List<sObject>> fieldDependenciesMap;
     private static Map<String, List<sObject>> fieldToSectionMap;
+    
     @AuraEnabled(cacheable = true)
     public static FormTemplate getCurrentTemplate(Id templateId){
         try {
@@ -115,21 +116,22 @@ public without sharing class DynamicFormCreatorController {
     @AuraEnabled(cacheable = true)
     public static Form_Action__c getActionRecord(Id actionId){
         try {
-            return [Select Id,Apex_Aura_Action__r.Apex_Method__c, Apex_Aura_Action__r.Apex_Class_Name__c, Apex_Aura_Action__r.Argument_List__c,
-             Apex_Aura_Action__r.Aura_LWC_Cmp_Name__c, Event_Name_To_Trigger__c, Field_Action__c, Form_Template__c, Invoke_For_Field_Value__c from Form_Action__c WHERE Id=: actionId WITH SECURITY_ENFORCED];
+            return [Select Id, Apex_Aura_Action__r.Apex_Method__c, Apex_Aura_Action__r.Apex_Class_Name__c, Apex_Aura_Action__r.Argument_List__c,
+             Apex_Aura_Action__r.Aura_LWC_Cmp_Name__c, Section_Action__c,Argument_Mapping__c, Event_Name_To_Trigger__c, Field_Action__c, Form_Template__c, Invoke_For_Field_Value__c from Form_Action__c WHERE Id=: actionId WITH SECURITY_ENFORCED];
         } catch (Exception e) {
             throw new AuraHandledException(e.getMessage());
         }
     }
     @AuraEnabled(cacheable=true)
-    public static list<sObject> fetchLookupData(string searchKey , string sObjectApiName) {   
+    public static list<sObject> fetchLookupData(string searchKey , string sObjectApiName, String additionalFields, String whereClause) {   
         if(!checkIfObjectisAccessible(sObjectApiName)){
             throw new AuraHandledException('Object '+ sObjectApiName + ' is not accessible to this user.');
         } 
         List < sObject > returnList = new List < sObject > ();
         string sWildCardText = '%' + searchKey + '%';
-        string sQuery = 'Select Id,Name From ' + sObjectApiName + ' Where Name Like : sWildCardText order by createdDate DESC LIMIT 5';
-        for (sObject obj: database.query(String.escapeSingleQuotes(sQuery))) {
+        string sQuery = 'Select Id,Name '+(!String.isBlank(additionalFields)?(',' +additionalFields):'')+' FROM ' + sObjectApiName 
+                        + ' Where Name Like : sWildCardText '+(!String.isBlank(whereClause)?whereClause:'')+' order by createdDate DESC LIMIT 5';
+        for (sObject obj: database.query(sQuery)) {
             returnList.add(obj);
         }
         return returnList;
@@ -140,7 +142,7 @@ public without sharing class DynamicFormCreatorController {
 
     }
     // Method to fetch lookup default value 
-    @AuraEnabled
+    @AuraEnabled(cacheable=true)
     public static sObject fetchDefaultRecord(string recordId , string sObjectApiName) {
         if(!checkIfObjectisAccessible(sObjectApiName)){
             throw new AuraHandledException('Object '+ sObjectApiName + ' is not accessible to this user.');
@@ -152,6 +154,12 @@ public without sharing class DynamicFormCreatorController {
         }
         return null;
     }
+    @auraEnabled(cacheable = true)
+    public static List<ApexClass> getRelatedApexClass(String objectName){
+        String apexInterfaceName = 'I'+objectName.replace('__c','')+'Dynamic%';
+        return [SELECT Id, Name , Body FROM ApexClass WHERE Name LIKE :apexInterfaceName WITH SECURITY_ENFORCED LIMIT 1000];
+    }
+
     public class FormTemplate{
         @auraEnabled public Form_Template__c formTemplate;
         @auraEnabled public List<Form_Action__c> relatedFormActions;
@@ -168,5 +176,8 @@ public without sharing class DynamicFormCreatorController {
         @auraEnabled public Form_Field__c formField;  
         @auraEnabled public List<Form_Action__c> relatedFieldActions;  
         @auraEnabled public List<Form_Dependency__c> controllingFieldDependency;  
+    }
+    public class DynamicFormException extends Exception{
+
     }
 }

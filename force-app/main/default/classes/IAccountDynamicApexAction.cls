@@ -5,6 +5,6 @@
  * argument in the method should be from account object record or the related parent or 1 level below child object
  */
 public interface IAccountDynamicApexAction {
-    void sendEmailForAccount(String accId);/**this methods will be later changes based on requirement */
-    List<Contact> createContactsForAcc(String accId, List<Contact> conToInsert);/**this methods will be later changes based on requirement */
+    void sendEmailForAccount(String accId);
+    List<Contact> createContactsForAcc(String accId, List<Contact> conToInsert);
 }
