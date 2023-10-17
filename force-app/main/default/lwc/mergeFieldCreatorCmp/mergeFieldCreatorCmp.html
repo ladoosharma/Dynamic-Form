@@ -1,3 +1,156 @@
 <template>
-    
+  <div class="slds-grid slds-gutters slds-wrap">
+    <div class="slds-col slds-size_2-of-6">
+      <span>
+        <lightning-combobox
+          label="Arguments"
+          name="argumentlist"
+          options={argsList}
+          onchange={enableLookup}
+        ></lightning-combobox>
+      </span>
+    </div>
+    <div class="slds-col slds-size_4-of-6">
+      <span>
+        <div class="slds-grid slds-gutters slds-wrap">
+          <template
+            for:each={currentFieldPath}
+            for:item="fieldPath"
+            for:index="index"
+          >
+            <div
+              key={fieldPath.fieldPath}
+              if:true={fieldPath.currentlySelected}
+              class="slds-col slds-size_1-of-6 slds-box"
+              style="height: 100px"
+            >
+              {fieldPath.label}
+              <lightning-button-icon
+                data-index={index}
+                icon-name="utility:close"
+                class="slds-button slds-button_neutral"
+                onclick={removeSelection}
+              ></lightning-button-icon>
+            </div>
+          </template>
+          <div if:false={hideLookupPopup} class="slds-col slds-size_2-of-6">
+            <template if:true={currentObjectInfo}>
+              <div
+                class="slds-form-element"
+                onmouseleave={openDropDown}
+                data-source="lookupContainer"
+              >
+                <label
+                  class="slds-form-element__label"
+                  for="combobox-id-1"
+                  id="combobox-label-id-38"
+                  >Relate To</label
+                >
+                <div class="slds-form-element__control">
+                  <div class="slds-combobox_container">
+                    <div
+                      class="lookupInputContainer slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click"
+                    >
+                      <div
+                        class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
+                        role="none"
+                      >
+                        <lightning-input
+                          data-source="searchInputField"
+                          type="search"
+                          onclick={openDropDown}
+                          onchange={searchLookup}
+                          is-loading="false"
+                        ></lightning-input>
+                        <span
+                          class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right"
+                        >
+                        </span>
+                      </div>
+                      <div
+                        id="listbox-id-1"
+                        class="slds-dropdown slds-dropdown_length-with-icon-7 slds-dropdown_fluid"
+                        role="listbox"
+                        tabindex="0"
+                        aria-busy="false"
+                      >
+                        <ul
+                          class="slds-listbox slds-listbox_vertical"
+                          role="presentation"
+                        >
+                          <template
+                            for:each={tempCurrentFieldIteration}
+                            for:item="eachField"
+                          >
+                            <li
+                              key={eachField.apiName}
+                              data-selected="true"
+                              data-field={eachField.apiName}
+                              role="presentation"
+                              class="slds-listbox__item"
+                              onclick={handleSelection}
+                            >
+                              <div
+                                class="slds-media slds-listbox__option slds-listbox__option_entity slds-listbox__option_has-meta"
+                                role="option"
+                              >
+                                <span
+                                  class="slds-media__figure slds-listbox__option-icon"
+                                >
+                                  <span
+                                    class="slds-icon_container slds-icon-standard-account"
+                                  >
+                                    <!--Icon for relation ship will go here-->
+                                    <lightning-icon
+                                      icon-name={eachField.iconName}
+                                      size="xx-small"
+                                    ></lightning-icon>
+                                  </span>
+                                </span>
+                                <span class="slds-media__body">
+                                  <span
+                                    class="slds-listbox__option-text slds-listbox__option-text_entity"
+                                    >{eachField.label} &nbsp; &nbsp; &nbsp;
+                                    <template
+                                      lwc:if={eachField.relatedToObject}
+                                    >
+                                      <lightning-button-icon
+                                        data-field={eachField.apiName}
+                                        data-selected="false"
+                                        icon-name="utility:chevronright"
+                                        size="small"
+                                        onclick={handleSelection}
+                                      ></lightning-button-icon>
+                                    </template>
+                                  </span>
+                                  <span
+                                    class="slds-listbox__option-meta slds-listbox__option-meta_entity"
+                                    >{eachField.apiName} ###
+                                    {eachField.relationShipType}</span
+                                  >
+                                </span>
+                              </div>
+                            </li>
+                          </template>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+      </span>
+    </div>
+    <div class="slds-col slds-size_1-of-1">
+      <span>
+        <lightning-textarea
+          label="Arguments Mapping"
+          disabled
+          value={argumetList}
+        ></lightning-textarea>
+      </span>
+    </div>
+  </div>
 </template>
