@@ -6,6 +6,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   @api objectRelatedTo;
   currentLevel = 1;
   tempObj;
+  selectedArgs;
   @api argumetList;
   @track currentObjectInfo;
   @track currentFieldsIteration;
@@ -13,6 +14,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   @track currentFieldPath;
   isChildRelationSelected = false;
   hideLookupPopup = true;
+  childFieldForArgumentMap = new Map();
   connectedCallback() {
     this.tempObj = this.objectRelatedTo;
     this.currentFieldPath = [
@@ -59,7 +61,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
               return {
                 label: eachChild.relationshipName,
                 apiName: eachChild.relationshipName,
-                relatedToObject: eachChild.eachChild,
+                relatedToObject: eachChild.childObjectApiName,
                 relationShipType: "Child",
                 isChildRelation: true,
                 iconName: "utility:hierarchy"
@@ -116,7 +118,10 @@ export default class MergeFieldCreatorCmp extends LightningElement {
           /** hide the lookup field if the field is selected */
         }
       }
-      if (isFieldSelected === "false") {
+      if (
+        isFieldSelected === "false" ||
+        (isFieldSelected === "true" && selectedField.isChildRelation)
+      ) {
         /** put inside a list and then move the ietration forward */
         this.currentFieldPath.push({
           currentObject: selectedField.relatedToObject,
@@ -159,11 +164,14 @@ export default class MergeFieldCreatorCmp extends LightningElement {
       this.hideLookupPopup = false;
       this.currentFieldPath = this.currentFieldPath.slice(
         0,
-        parseInt(indexValue, 10) - 1
+        parseInt(indexValue, 10) + 1
       );
       this.currentFieldPath[
         this.currentFieldPath.length - 1
       ].currentlySelected = false;
+      this.tempObj =
+        this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
+      this.currentObjectInfo = undefined;
     }
   }
   get argsList() {
@@ -180,7 +188,27 @@ export default class MergeFieldCreatorCmp extends LightningElement {
     }
     return [NONE_PICK];
   }
-
+  handleChildFieldSelection(evt) {
+    const checked = evt.target.checked;
+    const apiName = evt.target.value;
+    evt.stopPropagation();
+    if (apiName) {
+      if (this.childFieldForArgumentMap.has(this.selectedArgs)) {
+        if (checked) {
+          this.childFieldForArgumentMap.get(this.selectedArgs).push(apiName);
+        } else {
+          this.childFieldForArgumentMap.set(
+            this.selectedArgs,
+            this.childFieldForArgumentMap
+              .get(this.selectedArgs)
+              .filter((each) => {
+                return each !== apiName;
+              })
+          );
+        }
+      }
+    }
+  }
   handleLookupSelection(evt) {
     const relationShip = evt.target.value;
     if (relationShip) {
@@ -189,6 +217,13 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   }
   enableLookup(evt) {
     this.hideLookupPopup = evt.target.value === "";
+    this.selectedArgs = evt.target.value;
+    if (
+      !this.childFieldForArgumentMap.has(evt.target.value) &&
+      evt.target.value
+    ) {
+      this.childFieldForArgumentMap.set(evt.target.value, []);
+    }
   }
   searchLookup(evt) {
     const value = evt.target.value;

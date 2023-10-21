@@ -7,6 +7,7 @@
           name="argumentlist"
           options={argsList}
           onchange={enableLookup}
+          value={selectedArgs}
         ></lightning-combobox>
       </span>
     </div>
@@ -108,19 +109,30 @@
                                   </span>
                                 </span>
                                 <span class="slds-media__body">
+                                  <template if:true={isChildRelationSelected}>
+                                    <lightning-input
+                                      type="checkbox"
+                                      onclick={handleChildFieldSelection}
+                                      value={eachField.apiName}
+                                    ></lightning-input>
+                                  </template>
                                   <span
                                     class="slds-listbox__option-text slds-listbox__option-text_entity"
                                     >{eachField.label} &nbsp; &nbsp; &nbsp;
                                     <template
-                                      lwc:if={eachField.relatedToObject}
+                                      if:false={isChildRelationSelected}
                                     >
-                                      <lightning-button-icon
-                                        data-field={eachField.apiName}
-                                        data-selected="false"
-                                        icon-name="utility:chevronright"
-                                        size="small"
-                                        onclick={handleSelection}
-                                      ></lightning-button-icon>
+                                      <template
+                                        lwc:if={eachField.isParentRelation}
+                                      >
+                                        <lightning-button-icon
+                                          data-field={eachField.apiName}
+                                          data-selected="false"
+                                          icon-name="utility:chevronright"
+                                          size="small"
+                                          onclick={handleSelection}
+                                        ></lightning-button-icon>
+                                      </template>
                                     </template>
                                   </span>
                                   <span

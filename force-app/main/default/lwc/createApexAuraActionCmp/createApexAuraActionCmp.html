@@ -25,14 +25,14 @@
           <label class="slds-form-element__label">Aura/Apex Action</label>
           <div class="slds-form-element__control">
             <c-custom-lookup-lwc
-              data-id="Apex_Aura_Action__c"
+              data-id="Dynamic_Forms__Apex_Aura_Action__c"
               icon-name="standard:user"
-              s-object-api-name="Apex_Aura_Action__c"
+              s-object-api-name="Dynamic_Forms__Apex_Aura_Action__c"
               label=""
               onlookupupdate={lookupRecord}
-              default-record-id={formActionData.Apex_Aura_Action__c}
+              default-record-id={formActionData.Dynamic_Forms__Apex_Aura_Action__c}
               placeholder="type here..."
-              additional-field-tobe-shown="Aura_LWC_Cmp_Name__c:Component Name,Apex_Class_Name__c:Apex Class Name,Argument_List__c:Argument List,Object_Related_To__c:Object Related To"
+              additional-field-tobe-shown="Dynamic_Forms__Aura_LWC_Cmp_Name__c:Component Name,Dynamic_Forms__Apex_Class_Name__c:Apex Class Name,Dynamic_Forms__Argument_List__c:Argument List,Dynamic_Forms__Object_Related_To__c:Object Related To"
               where-clause-for-filter={whereClauseForAction}
             >
             </c-custom-lookup-lwc>
@@ -51,22 +51,22 @@
           <div class="slds-form-element__control">
             <!--Child component will go here -->
             <lightning-input
-              value={formActionData.Event_Name_To_Trigger__c}
+              value={formActionData.Dynamic_Forms__Event_Name_To_Trigger__c}
             ></lightning-input>
           </div>
         </div>
       </div>
       <div
-        lwc:if={formActionData.Argument_Mapping__c}
+        lwc:if={formActionData.Dynamic_Forms__Argument_Mapping__c}
         class="slds-col slds-size_1-of-1"
       >
         <div class="slds-form-element">
           <label class="slds-form-element__label">Argument Mapping</label>
           <div class="slds-form-element__control">
             <c-merge-field-creator-cmp
-              lwc:if={formActionData.Argument_Mapping__c}
+              lwc:if={formActionData.Dynamic_Forms__Argument_Mapping__c}
               object-related-to={formObject}
-              argumet-list={formActionData.Argument_Mapping__c}
+              argumet-list={formActionData.Dynamic_Forms__Argument_Mapping__c}
             ></c-merge-field-creator-cmp>
           </div>
         </div>
@@ -77,7 +77,9 @@
             >Field Value For Invocation</label
           >
           <div class="slds-form-element__control">
-            <lightning-input value={formActionData.Invoke_For_Field_Value__c}>
+            <lightning-input
+              value={formActionData.Dynamic_Forms__Invoke_For_Field_Value__c}
+            >
             </lightning-input>
           </div>
         </div>

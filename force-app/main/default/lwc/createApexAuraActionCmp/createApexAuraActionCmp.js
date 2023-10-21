@@ -15,20 +15,20 @@ export default class CreateApexAuraActionCmp extends LightningElement {
   @track formActionData;
   openNewActionPopup;
   connectedCallback() {
-    this.whereClauseForAction = ` AND Object_Related_To__c = '${this.formObject}'`;
+    this.whereClauseForAction = ` AND Dynamic_Forms__Object_Related_To__c = '${this.formObject}'`;
     this.relatedActionObject = this.isFieldAction
-      ? "Form_Field__c"
+      ? "Dynamic_Forms__Form_Field__c"
       : this.isSectionAction
-      ? "Form_Section__c"
+      ? "Dynamic_Forms__Form_Section__c"
       : this.isTemplateAction
-      ? "Form_Template__c"
+      ? "Dynamic_Forms__Form_Template__c"
       : "";
     this.lookupFieldApiName = this.isFieldAction
-      ? "Field_Action__c"
+      ? "Dynamic_Forms__Field_Action__c"
       : this.isSectionAction
-      ? "Section_Action__c"
+      ? "Dynamic_Forms__Section_Action__c"
       : this.isTemplateAction
-      ? "Form_Template__c"
+      ? "Dynamic_Forms__Form_Template__c"
       : "";
     this.relatedFieldLabel = this.isFieldAction
       ? "Field Related to"
@@ -45,26 +45,26 @@ export default class CreateApexAuraActionCmp extends LightningElement {
   actionFetch({ data, error }) {
     if (data) {
       this.formActionData = data;
-      this.relatedActionObject = data.Field_Action__c
-        ? "Form_Field__c"
-        : data.Section_Action__c
-        ? "Form_Section__c"
-        : data.Form_Template__c
-        ? "Form_Template__c"
+      this.relatedActionObject = data.Dynamic_Forms__Field_Action__c
+        ? "Dynamic_Forms__Form_Field__c"
+        : data.Dynamic_Forms__Section_Action__c
+        ? "Dynamic_Forms__Form_Section__c"
+        : data.Dynamic_Forms__Form_Template__c
+        ? "Dynamic_Forms__Form_Template__c"
         : "";
-      this.relatedFieldLabel = data.Field_Action__c
+      this.relatedFieldLabel = data.Dynamic_Forms__Field_Action__c
         ? "Field Related to"
-        : data.Section_Action__c
+        : data.Dynamic_Forms__Section_Action__c
         ? "Section Related to"
-        : data.Form_Template__c
+        : data.Dynamic_Forms__Form_Template__c
         ? "Template Related to"
         : "";
-      this.relatedObjectId = data.Field_Action__c
-        ? data.Field_Action__c
-        : data.Section_Action__c
-        ? data.Section_Action__c
-        : data.Form_Template__c
-        ? data.Form_Template__c
+      this.relatedObjectId = data.Dynamic_Forms__Field_Action__c
+        ? data.Dynamic_Forms__Field_Action__c
+        : data.Dynamic_Forms__Section_Action__c
+        ? data.Dynamic_Forms__Section_Action__c
+        : data.Dynamic_Forms__Form_Template__c
+        ? data.Dynamic_Forms__Form_Template__c
         : "";
     }
     if (error) {
@@ -79,13 +79,16 @@ export default class CreateApexAuraActionCmp extends LightningElement {
         ? recordSelected.Id
         : "";
     }
-    if (fieldToBeMappedWith === "Apex_Aura_Action__c" && recordSelected) {
-      this.formActionData.Argument_Mapping__c =
+    if (
+      fieldToBeMappedWith === "Dynamic_Forms__Apex_Aura_Action__c" &&
+      recordSelected
+    ) {
+      this.formActionData.Dynamic_Forms__Argument_Mapping__c =
         recordSelected.additionalFields.find((e) => {
-          return e.apiName === "Argument_List__c";
+          return e.apiName === "Dynamic_Forms__Argument_List__c";
         }).value;
-    } else if (fieldToBeMappedWith === "Apex_Aura_Action__c") {
-      this.formActionData.Argument_Mapping__c = "";
+    } else if (fieldToBeMappedWith === "Dynamic_Forms__Apex_Aura_Action__c") {
+      this.formActionData.Dynamic_Forms__Argument_Mapping__c = "";
     }
   }
   submitform() {
@@ -107,9 +110,9 @@ export default class CreateApexAuraActionCmp extends LightningElement {
       .submitForm()
       .then((data) => {
         if (data) {
-          this.formActionData.Apex_Aura_Action__c = data.id;
-          this.formActionData.Argument_Mapping__c =
-            data.fields.Argument_List__c.value;
+          this.formActionData.Dynamic_Forms__Apex_Aura_Action__c = data.id;
+          this.formActionData.Dynamic_Forms__Argument_Mapping__c =
+            data.fields.Dynamic_Forms__Argument_List__c.value;
           this.openNewActionPopup = false;
         }
       })
