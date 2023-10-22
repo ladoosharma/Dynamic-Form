@@ -88,13 +88,22 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         if (selectedField.isChildRelation) {
           this.currentFieldPath[
             this.currentFieldPath.length - 1
-          ].fieldPath += `[${selectedField.apiName}]`;
+          ].fieldPath += `.[${selectedField.apiName}]`;
           this.currentFieldPath[
             this.currentFieldPath.length - 1
           ].label += `-->[${selectedField.apiName}]`;
           this.currentFieldPath[
             this.currentFieldPath.length - 1
           ].currentlySelected = true;
+          if (
+            !this.childFieldForArgumentMap.has(selectedField.relatedToObject) &&
+            selectedField.relatedToObject
+          ) {
+            this.childFieldForArgumentMap.set(
+              selectedField.relatedToObject,
+              []
+            );
+          }
         } else if (selectedField.isParentRelation) {
           this.currentFieldPath[
             this.currentFieldPath.length - 1
@@ -128,7 +137,8 @@ export default class MergeFieldCreatorCmp extends LightningElement {
           label: this.currentFieldPath[this.currentFieldPath.length - 1].label,
           fieldPath:
             this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath,
-          currentlySelected: false
+          currentlySelected: false,
+          isChildRelationShip: selectedField.isChildRelation
         });
         this.isChildRelationSelected = selectedField.isChildRelation;
         if (this.tempObj !== selectedField.relatedToObject) {
@@ -153,25 +163,70 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         break;
       case "lookupContainer":
         clsList.remove("slds-is-open");
+        // if (this.isChildRelationSelected) {
+        //   this.appendChildSelectedField();
+        // }
         break;
       default:
         break;
     }
   }
+  appendChildSelectedField() {
+    if (this.isChildRelationSelected) {
+      const currentObject =
+        this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
+      this.currentFieldPath[this.currentFieldPath.length - 1].label =
+        this.childFieldForArgumentMap.has(currentObject)
+          ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath +
+            this.childFieldForArgumentMap.get(currentObject).join(",")
+          : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+      this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath =
+        this.childFieldForArgumentMap.has(currentObject)
+          ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath +
+            this.childFieldForArgumentMap.get(currentObject).join(",")
+          : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+      this.currentFieldPath[
+        this.currentFieldPath.length - 1
+      ].currentlySelected = true;
+      this.hideLookupPopup = false;
+      this.currentObjectInfo = false;
+      this.tempObj = undefined;
+      this.childFieldForArgumentMap.delete(currentObject);
+    }
+  }
+
   removeSelection(evt) {
     const indexValue = evt.target.dataset.index;
     if (indexValue !== undefined) {
       this.hideLookupPopup = false;
-      this.currentFieldPath = this.currentFieldPath.slice(
-        0,
-        parseInt(indexValue, 10) + 1
-      );
+      const currentLength = this.currentFieldPath.length;
+      const isLastElementRemoved =
+        currentLength === parseInt(indexValue, 10) + 1;
+      this.currentFieldPath = !isLastElementRemoved
+        ? this.currentFieldPath.slice(0, parseInt(indexValue, 10) + 1)
+        : this.currentFieldPath;
       this.currentFieldPath[
         this.currentFieldPath.length - 1
       ].currentlySelected = false;
+      this.currentObjectInfo = undefined;
       this.tempObj =
         this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
-      this.currentObjectInfo = undefined;
+      this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath =
+        !isLastElementRemoved
+          ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath
+              .split(".")
+              .slice(0, parseInt(indexValue, 10) + 1)
+              .join(".")
+          : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+      this.currentFieldPath[this.currentFieldPath.length - 1].label =
+        !isLastElementRemoved
+          ? this.currentFieldPath[this.currentFieldPath.length - 1].label
+              .split("-->")
+              .slice(0, parseInt(indexValue, 10) + 1)
+              .join("-->")
+          : this.currentFieldPath[this.currentFieldPath.length - 1].label;
+      this.isChildRelationSelected =
+        this.currentFieldPath[this.currentFieldPath.length - 1].isChildRelation;
     }
   }
   get argsList() {
@@ -191,16 +246,20 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   handleChildFieldSelection(evt) {
     const checked = evt.target.checked;
     const apiName = evt.target.value;
+    const currentObjectSelected =
+      this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
     evt.stopPropagation();
-    if (apiName) {
-      if (this.childFieldForArgumentMap.has(this.selectedArgs)) {
-        if (checked) {
-          this.childFieldForArgumentMap.get(this.selectedArgs).push(apiName);
+    if (currentObjectSelected) {
+      if (this.childFieldForArgumentMap.has(currentObjectSelected)) {
+        if (!checked) {
+          this.childFieldForArgumentMap
+            .get(currentObjectSelected)
+            .push(apiName);
         } else {
           this.childFieldForArgumentMap.set(
-            this.selectedArgs,
+            currentObjectSelected,
             this.childFieldForArgumentMap
-              .get(this.selectedArgs)
+              .get(currentObjectSelected)
               .filter((each) => {
                 return each !== apiName;
               })
@@ -217,13 +276,13 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   }
   enableLookup(evt) {
     this.hideLookupPopup = evt.target.value === "";
-    this.selectedArgs = evt.target.value;
-    if (
-      !this.childFieldForArgumentMap.has(evt.target.value) &&
-      evt.target.value
-    ) {
-      this.childFieldForArgumentMap.set(evt.target.value, []);
-    }
+    // this.selectedArgs = evt.target.value;
+    // if (
+    //   !this.childFieldForArgumentMap.has(evt.target.value) &&
+    //   evt.target.value
+    // ) {
+    //   this.childFieldForArgumentMap.set(evt.target.value, []);
+    // }
   }
   searchLookup(evt) {
     const value = evt.target.value;
