@@ -49,35 +49,31 @@
                   class="slds-form-element__label"
                   for="combobox-id-1"
                   id="combobox-label-id-38"
-                  >Relate To</label
-                >
+                ></label>
                 <div class="slds-form-element__control">
                   <div class="slds-combobox_container">
                     <div
                       class="lookupInputContainer slds-combobox slds-dropdown-trigger slds-dropdown-trigger_click"
                     >
                       <div
-                        if:false={hideLookupPopup}
                         class="slds-combobox__form-element slds-input-has-icon slds-input-has-icon_right"
                         role="none"
                       >
-                        <template if:false={hideLookupPopup}>
-                          <lightning-input
-                            data-source="searchInputField"
-                            type="search"
-                            onclick={openDropDown}
-                            onchange={searchLookup}
-                            is-loading="false"
-                          ></lightning-input>
-                          <template if:true={isChildRelationSelected}>
-                            <lightning-button
-                              class="footer-button"
-                              label="Confirm Field Selection"
-                              onclick={appendChildSelectedField}
-                            ></lightning-button>
-                          </template>
+                        <lightning-input
+                          data-source="searchInputField"
+                          label="Relate To"
+                          type="search"
+                          onclick={openDropDown}
+                          onchange={searchLookup}
+                          is-loading="false"
+                        ></lightning-input>
+                        <template if:true={isChildRelationSelected}>
+                          <lightning-button
+                            class="footer-button"
+                            label="Confirm Field Selection"
+                            onclick={appendChildSelectedField}
+                          ></lightning-button>
                         </template>
-
                         <span
                           class="slds-icon_container slds-icon-utility-search slds-input__icon slds-input__icon_right"
                         >

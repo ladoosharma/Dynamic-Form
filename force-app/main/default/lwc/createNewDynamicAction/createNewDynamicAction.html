@@ -1,40 +1,77 @@
 <template>
-    <div class="slds-form">
-        <div class="slds-form-element">
-            <label class="slds-form-element__label" for="field1">Type Of Component</label>
-            <div class="slds-form-element__control">
-                <lightning-combobox name="type" data-id="input" options={actionType} onchange={handleTypeChange}></lightning-combobox>
-            </div>
-        </div>
-        <div data-id="ApexClass" class="slds-form-element slds-show">
-            <label class="slds-form-element__label" for="field2">Apex Class Name</label>
-            <div class="slds-form-element__control">
-                <lightning-combobox name="apexclasses" options={apexClassesList} data-id="input" onchange={handleApexClassSelection}></lightning-combobox>
-            </div>
-        </div>
-        <div data-id="ApexMethod" class="slds-form-element slds-show">
-            <label class="slds-form-element__label" for="field3">Apex Methods avaialable</label>
-            <div class="slds-form-element__control">
-                <lightning-combobox name="apexMethods" options={methodList} value={apexMethod} data-id="input" onchange={handleApexMethodSelection}></lightning-combobox>
-            </div>
-        </div>
-        <div data-id="Aura" class="slds-form-element slds-show">
-            <label class="slds-form-element__label" for="field3">Aura/LWC Cmp Name</label>
-            <div class="slds-form-element__control">
-                <lightning-input name="AuraCmpName" value={auraCmpName}></lightning-input>
-            </div>
-        </div>
-        <div class="slds-form-element">
-            <label class="slds-form-element__label" for="field4">List Of "," Seperated Argument</label>
-            <lightning-helptext
-                content="Argument must be comma seperated ',' and we must always include the Data type of the argument before the argument variable name
-            Like String arg1, List<Account> arg2, List<Contact> arg3. Make sure the argument name matches the argument name in apex class and should also match for Aura /LWC component.
-                In Aura and LWC please make sure the properties should be public or else the value will not be passed."></lightning-helptext>
-            <lightning-helptext
-                content="Please make sure , whichever argument you are passing should be related to the Object for which you are building dynamic form"></lightning-helptext>
-            <div class="slds-form-element__control">
-                <lightning-textarea disabled data-id="input" value={argumentList}></lightning-textarea>
-            </div>
-        </div>
+  <div class="slds-form">
+    <div class="slds-form-element">
+      <label class="slds-form-element__label" for="field1"
+        >Type Of Component</label
+      >
+      <div class="slds-form-element__control">
+        <lightning-combobox
+          name="type"
+          data-id="input"
+          options={actionType}
+          onchange={handleTypeChange}
+        ></lightning-combobox>
+      </div>
     </div>
+    <div data-id="ApexClass" class="slds-form-element slds-show">
+      <label class="slds-form-element__label" for="field2"
+        >Apex Class Name</label
+      >
+      <div class="slds-form-element__control">
+        <lightning-combobox
+          name="apexclasses"
+          options={apexClassesList}
+          data-id="input"
+          onchange={handleApexClassSelection}
+        ></lightning-combobox>
+      </div>
+    </div>
+    <div data-id="ApexMethod" class="slds-form-element slds-show">
+      <label class="slds-form-element__label" for="field3"
+        >Apex Methods avaialable</label
+      >
+      <div class="slds-form-element__control">
+        <lightning-combobox
+          name="apexMethods"
+          options={methodList}
+          value={apexMethod}
+          data-id="input"
+          onchange={handleApexMethodSelection}
+        ></lightning-combobox>
+      </div>
+    </div>
+    <div data-id="Aura" class="slds-form-element slds-show">
+      <label class="slds-form-element__label" for="field3"
+        >Aura/LWC Cmp Name</label
+      >
+      <div class="slds-form-element__control">
+        <lightning-input
+          data-id="auraCmpName"
+          value={auraCmpName}
+          onblur={setCmpName}
+        ></lightning-input>
+      </div>
+    </div>
+    <div class="slds-form-element">
+      <label class="slds-form-element__label" for="field4"
+        >List Of "," Seperated Argument</label
+      >
+      <lightning-helptext
+        content="Argument must be comma seperated ',' and we must always include the Data type of the argument before the argument variable name
+            Like String arg1, List<Account> arg2, List<Contact> arg3. Make sure the argument name matches the argument name in apex class and should also match for Aura /LWC component.
+                In Aura and LWC please make sure the properties should be public or else the value will not be passed."
+      ></lightning-helptext>
+      <lightning-helptext
+        content="Please make sure , whichever argument you are passing should be related to the Object for which you are building dynamic form"
+      ></lightning-helptext>
+      <div class="slds-form-element__control">
+        <lightning-textarea
+          disabled
+          data-id="argumentList"
+          onblur={setCmpName}
+          value={argumentList}
+        ></lightning-textarea>
+      </div>
+    </div>
+  </div>
 </template>

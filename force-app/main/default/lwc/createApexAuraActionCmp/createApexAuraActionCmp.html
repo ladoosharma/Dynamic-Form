@@ -1,5 +1,5 @@
 <template>
-  <lightning-card title="Apex/Aura Action">
+  <lightning-card if:true={formActionData} title="Apex/Aura Action">
     <div class="slds-grid slds-gutters slds-wrap">
       <div class="slds-col slds-size_1-of-1">
         <div class="slds-form-element">
@@ -51,7 +51,9 @@
           <div class="slds-form-element__control">
             <!--Child component will go here -->
             <lightning-input
+              data-field="Dynamic_Forms__Event_Name_To_Trigger__c"
               value={formActionData.Dynamic_Forms__Event_Name_To_Trigger__c}
+              onblur={populateField}
             ></lightning-input>
           </div>
         </div>
@@ -64,9 +66,11 @@
           <label class="slds-form-element__label">Argument Mapping</label>
           <div class="slds-form-element__control">
             <c-merge-field-creator-cmp
-              lwc:if={formActionData.Dynamic_Forms__Argument_Mapping__c}
+              lwc:if={formActionData.Dynamic_Forms__Apex_Aura_Action__c}
               object-related-to={formObject}
               argumet-list={formActionData.Dynamic_Forms__Argument_Mapping__c}
+              onargumentchange={updateArgument}
+              actual-argument-list={formActionData.Dynamic_Forms__Apex_Aura_Action__r.Dynamic_Forms__Argument_List__c}
             ></c-merge-field-creator-cmp>
           </div>
         </div>
@@ -78,7 +82,9 @@
           >
           <div class="slds-form-element__control">
             <lightning-input
+              data-field="Dynamic_Forms__Invoke_For_Field_Value__c"
               value={formActionData.Dynamic_Forms__Invoke_For_Field_Value__c}
+              onblur={populateField}
             >
             </lightning-input>
           </div>

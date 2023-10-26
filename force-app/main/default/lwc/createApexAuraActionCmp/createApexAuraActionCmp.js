@@ -1,6 +1,6 @@
 import { LightningElement, api, wire, track } from "lwc";
 import getActionRecord from "@salesforce/apex/DynamicFormCreatorController.getActionRecord";
-//import { updateRecord, createRecord } from "lightning/uiRecordApi";
+import { updateRecord, createRecord } from "lightning/uiRecordApi";
 export default class CreateApexAuraActionCmp extends LightningElement {
   @api actionId;
   @api formObject;
@@ -44,7 +44,7 @@ export default class CreateApexAuraActionCmp extends LightningElement {
   @wire(getActionRecord, { actionId: "$actionId" })
   actionFetch({ data, error }) {
     if (data) {
-      this.formActionData = data;
+      this.formActionData = JSON.parse(JSON.stringify(data));
       this.relatedActionObject = data.Dynamic_Forms__Field_Action__c
         ? "Dynamic_Forms__Form_Field__c"
         : data.Dynamic_Forms__Section_Action__c
@@ -87,15 +87,49 @@ export default class CreateApexAuraActionCmp extends LightningElement {
         recordSelected.additionalFields.find((e) => {
           return e.apiName === "Dynamic_Forms__Argument_List__c";
         }).value;
+      if (this.formActionData.Dynamic_Forms__Apex_Aura_Action__r) {
+        this.formActionData.Dynamic_Forms__Apex_Aura_Action__r.Dynamic_Forms__Argument_List__c =
+          this.formActionData.Dynamic_Forms__Argument_Mapping__c;
+      } else if (this.formActionData.Dynamic_Forms__Apex_Aura_Action__c) {
+        this.formActionData.Dynamic_Forms__Apex_Aura_Action__r = {
+          Id: this.formActionData.Dynamic_Forms__Apex_Aura_Action__c
+        };
+        this.formActionData.Dynamic_Forms__Apex_Aura_Action__r.Dynamic_Forms__Argument_List__c =
+          this.formActionData.Dynamic_Forms__Argument_Mapping__c;
+      }
     } else if (fieldToBeMappedWith === "Dynamic_Forms__Apex_Aura_Action__c") {
       this.formActionData.Dynamic_Forms__Argument_Mapping__c = "";
     }
   }
+  populateField(evt) {
+    this.formActionData[evt.target.dataset.field] = evt.target.value;
+  }
   submitform() {
     if (this.actionId) {
       /**update the record , or create a new one */
+      updateRecord({ fields: this.formActionData })
+        .then((saveData) => {
+          //handle success message
+          console.debug(saveData);
+        })
+        .catch((error) => {
+          //handle error here
+          console.error(error);
+        });
     } else {
       /** create new record */
+      createRecord({
+        fields: this.formActionData,
+        apiName: "Dynamic_Forms__Form_Action__c"
+      })
+        .then((saveData) => {
+          //handle success message
+          console.debug(saveData);
+        })
+        .catch((error) => {
+          //handle error here
+          console.error(error);
+        });
     }
   }
   createNewAction() {
@@ -116,10 +150,15 @@ export default class CreateApexAuraActionCmp extends LightningElement {
           this.openNewActionPopup = false;
         }
       })
-      .bind(this)
       .catch((error) => {
         console.error(error);
         this.openNewActionPopup = false;
       });
+  }
+  updateArgument(evt) {
+    const argData = evt.detail;
+    if (argData) {
+      this.formActionData.Dynamic_Forms__Argument_Mapping__c = argData;
+    }
   }
 }

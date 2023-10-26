@@ -7,7 +7,9 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   currentLevel = 1;
   tempObj;
   selectedArgs;
+  picklistGenerated = false;
   @api argumetList;
+  @api actualArgumentList;
   @track currentObjectInfo;
   @track currentFieldsIteration;
   @track tempCurrentFieldIteration;
@@ -43,6 +45,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         ...Object.keys(fields).map((eachField) => {
           return {
             apiName: eachField,
+            relationShipField: fields[eachField].relationshipName,
             label: fields[eachField].label,
             isParentRelation: fields[eachField].dataType === "Reference",
             relatedToObject: fields[eachField].referenceToInfos.length
@@ -107,7 +110,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         } else if (selectedField.isParentRelation) {
           this.currentFieldPath[
             this.currentFieldPath.length - 1
-          ].fieldPath += `.${selectedField.apiName}`;
+          ].fieldPath += `.${selectedField.relationShipField}`;
           this.currentFieldPath[
             this.currentFieldPath.length - 1
           ].label += `-->${selectedField.label}`;
@@ -148,8 +151,31 @@ export default class MergeFieldCreatorCmp extends LightningElement {
       } else {
         /** close the lookup and populate the path value and append with Argument */
         this.hideLookupPopup = true;
+        this.appendToTheArgument(true);
       }
     }
+  }
+  appendToTheArgument(makeDefault) {
+    const texAreaFld = this.template.querySelector("lightning-textarea");
+    const argsSelecetd = this.template.querySelector("lightning-combobox");
+    const regexStringWithMatch = `( )(${argsSelecetd.value})( ,|\\{(.+?)\\}|,)`;
+    const newPath =
+      this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+    texAreaFld.value = makeDefault
+      ? texAreaFld.value.replace(
+          new RegExp(regexStringWithMatch),
+          (match, P1, P2, P3) => {
+            console.debug(P2);
+            console.debug(P3);
+            return `${P2}{${newPath}}${P3 === " ," || P3 === "," ? "," : ""}`;
+          }
+        )
+      : this.argumetList; //   argsSelecetd.value,
+
+    /** send the custom event and  */
+    this.dispatchEvent(
+      new CustomEvent("argumentchange", { detail: texAreaFld.value })
+    );
   }
   openDropDown(evt) {
     const lookupInputContainer = this.template.querySelector(
@@ -163,9 +189,6 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         break;
       case "lookupContainer":
         clsList.remove("slds-is-open");
-        // if (this.isChildRelationSelected) {
-        //   this.appendChildSelectedField();
-        // }
         break;
       default:
         break;
@@ -177,13 +200,15 @@ export default class MergeFieldCreatorCmp extends LightningElement {
         this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
       this.currentFieldPath[this.currentFieldPath.length - 1].label =
         this.childFieldForArgumentMap.has(currentObject)
-          ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath +
-            this.childFieldForArgumentMap.get(currentObject).join(",")
-          : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+          ? this.currentFieldPath[this.currentFieldPath.length - 1].label +
+            "-->" +
+            this.childFieldForArgumentMap.get(currentObject).join(":")
+          : this.currentFieldPath[this.currentFieldPath.length - 1].label;
       this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath =
         this.childFieldForArgumentMap.has(currentObject)
           ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath +
-            this.childFieldForArgumentMap.get(currentObject).join(",")
+            "." +
+            this.childFieldForArgumentMap.get(currentObject).join(":")
           : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
       this.currentFieldPath[
         this.currentFieldPath.length - 1
@@ -192,6 +217,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
       this.currentObjectInfo = false;
       this.tempObj = undefined;
       this.childFieldForArgumentMap.delete(currentObject);
+      this.appendToTheArgument(true);
     }
   }
 
@@ -212,28 +238,28 @@ export default class MergeFieldCreatorCmp extends LightningElement {
       this.tempObj =
         this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
       this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath =
-        !isLastElementRemoved
-          ? this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath
-              .split(".")
-              .slice(0, parseInt(indexValue, 10) + 1)
-              .join(".")
-          : this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+        this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath
+          .split(".")
+          .slice(0, parseInt(indexValue, 10) + 1)
+          .join(".");
       this.currentFieldPath[this.currentFieldPath.length - 1].label =
-        !isLastElementRemoved
-          ? this.currentFieldPath[this.currentFieldPath.length - 1].label
-              .split("-->")
-              .slice(0, parseInt(indexValue, 10) + 1)
-              .join("-->")
-          : this.currentFieldPath[this.currentFieldPath.length - 1].label;
+        this.currentFieldPath[this.currentFieldPath.length - 1].label
+          .split("-->")
+          .slice(0, parseInt(indexValue, 10) + 1)
+          .join("-->");
       this.isChildRelationSelected =
-        this.currentFieldPath[this.currentFieldPath.length - 1].isChildRelation;
+        this.currentFieldPath[
+          this.currentFieldPath.length - 1
+        ].isChildRelationShip;
     }
+    this.appendToTheArgument(false);
   }
   get argsList() {
     /** here split the args and make it as picklist */
     if (this.argumetList) {
-      const argumentRegex = /(?:,\s*)?(\w+)(?=\s*(?:,|\)))/g;
-      const argumentNames = this.argumetList.match(argumentRegex);
+      //&& !this.picklistGenerated
+      const argumentNames = this.actualArgumentList.match(/\b\w+\s*(?=[,]|$)/g);
+      //this.picklistGenerated = true;
       return [
         NONE_PICK,
         ...argumentNames.map((e) => {
@@ -275,14 +301,21 @@ export default class MergeFieldCreatorCmp extends LightningElement {
     }
   }
   enableLookup(evt) {
+    this.hideLookupPopup = true;
+    this.currentFieldPath = [
+      {
+        currentObject: this.objectRelatedTo,
+        label: "$Record",
+        fieldPath: "$Record",
+        currentlySelected: false
+      }
+    ];
+    this.childFieldForArgumentMap = new Map();
     this.hideLookupPopup = evt.target.value === "";
-    // this.selectedArgs = evt.target.value;
-    // if (
-    //   !this.childFieldForArgumentMap.has(evt.target.value) &&
-    //   evt.target.value
-    // ) {
-    //   this.childFieldForArgumentMap.set(evt.target.value, []);
-    // }
+    this.isChildRelationSelected = false;
+    this.tempObj = this.objectRelatedTo;
+    this.tempCurrentFieldIteration = undefined;
+    //this.appendToTheArgument(false);
   }
   searchLookup(evt) {
     const value = evt.target.value;

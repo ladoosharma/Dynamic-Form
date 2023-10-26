@@ -17,9 +17,11 @@ export default class CreateNewDynamicAction extends LightningElement {
   apexClassName;
   @api submitForm() {
     return createRecord({
-      apiName: "Apex_Aura_Action__c",
+      apiName: "Dynamic_Forms__Apex_Aura_Action__c",
       fields: {
-        Dynamic_Forms__Apex_Class_Name__c: this.apexClassName,
+        Dynamic_Forms__Apex_Class_Name__c: this.apexClassName
+          ? this.apexClassName
+          : this.auraCmpName,
         Dynamic_Forms__Apex_Method__c: this.apexMethod,
         Dynamic_Forms__Argument_List__c: this.argumentList,
         Dynamic_Forms__Aura_LWC_Cmp_Name__c: this.auraCmpName,
@@ -29,6 +31,9 @@ export default class CreateNewDynamicAction extends LightningElement {
           : this.auraCmpName
       }
     });
+  }
+  setCmpName(evt) {
+    this[evt.target.dataset.id] = evt.target.value;
   }
   get methodList() {
     return this.methodMap
@@ -86,6 +91,7 @@ export default class CreateNewDynamicAction extends LightningElement {
     const apexDiv = this.template.querySelector('[data-id="ApexClass"]');
     const apexMethodDiv = this.template.querySelector('[data-id="ApexMethod"]');
     const auraDiv = this.template.querySelector('[data-id="Aura"]');
+    const testAreaFld = this.template.querySelector("lightning-textarea");
     if (value === "Apex") {
       apexDiv.classList.add("slds-show");
       apexDiv.classList.remove("slds-hide");
@@ -95,6 +101,7 @@ export default class CreateNewDynamicAction extends LightningElement {
       auraDiv.classList.remove("slds-show");
       this.auraCmpName = "";
       this.argumentList = "";
+      testAreaFld.disabled = true;
     } else if (value === "Aura") {
       this.apexClassName = "";
       this.apexMethod = "";
@@ -105,6 +112,7 @@ export default class CreateNewDynamicAction extends LightningElement {
       apexMethodDiv.classList.remove("slds-show");
       auraDiv.classList.add("slds-show");
       auraDiv.classList.remove("slds-hide");
+      testAreaFld.disabled = false;
     }
   }
   getMethodsNameAndAgrument(classText) {
