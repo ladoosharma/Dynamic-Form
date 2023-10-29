@@ -1,0 +1,37 @@
+div.formContainer {
+  border-style: dotted;
+  border-width: 3px;
+  position: relative;
+  width: 80%;
+}
+div.pallet {
+  margin-right: 10px;
+}
+div.templateActionRegion {
+  border-style: dotted;
+  border-width: 3px;
+  min-height: 15rem;
+  position: relative;
+  width: 90%;
+  margin: auto;
+}
+div.sectionPlaceholder {
+  border-style: dotted;
+  border-width: 3px;
+  min-height: 30rem;
+  position: relative;
+  width: 90%;
+  margin: auto;
+}
+div.centeredDiv {
+  position: relative;
+  width: 90%;
+  margin: auto;
+  text-align: center;
+}
+.backgroundAllowed {
+  background-color: #97e4975c;
+}
+.backgroundNotAllowed {
+  background-color: #615e5e4a;
+}

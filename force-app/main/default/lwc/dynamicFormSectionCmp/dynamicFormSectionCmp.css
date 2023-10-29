@@ -1,0 +1,22 @@
+div.centeredDiv {
+  position: relative;
+  width: 90%;
+  margin: auto;
+  text-align: center;
+}
+div.templateActionRegion {
+  border-style: dotted;
+  border-width: 3px;
+  min-height: 15rem;
+  position: relative;
+  width: 90%;
+  margin: auto;
+}
+div.sectionPlaceholder {
+  border-style: dotted;
+  border-width: 3px;
+  min-height: 30rem;
+  position: relative;
+  width: 90%;
+  margin: auto;
+}

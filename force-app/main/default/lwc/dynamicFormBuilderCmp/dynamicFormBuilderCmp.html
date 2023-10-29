@@ -1,0 +1,180 @@
+<template>
+  <section
+    if:false={tempFormId}
+    role="dialog"
+    tabindex="-1"
+    aria-modal="true"
+    aria-labelledby="modal-heading-01"
+    class="slds-modal slds-fade-in-open"
+  >
+    <div class="slds-modal__container">
+      <div class="slds-modal__header">
+        <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+          Create Section
+        </h1>
+      </div>
+      <div
+        class="slds-modal__content slds-p-around_medium"
+        id="modal-content-id-1"
+      >
+        <div class="slds-box">
+          <lightning-input
+            data-field="Name"
+            name="templateName"
+            label="Template Name"
+            value={formTemplate.Name}
+            onblur={setFormData}
+          ></lightning-input>
+          <lightning-combobox
+            data-field="Dynamic_Forms__Form_Section_Type__c"
+            name="templateSectionType"
+            value={formTemplate.Dynamic_Forms__Form_Section_Type__c}
+            label="Form Section Type"
+            options={getFormSectionType}
+            onblur={setFormData}
+          ></lightning-combobox>
+          <lightning-combobox
+            data-field="Dynamic_Forms__Form_Type__c"
+            name="formType"
+            value={formTemplate.Dynamic_Forms__Form_Type__c}
+            label="Form Type"
+            options={getFormType}
+            onblur={setFormData}
+          ></lightning-combobox>
+        </div>
+      </div>
+      <div class="slds-modal__footer">
+        <lightning-button
+          label="Save"
+          variant="brand"
+          onclick={saveSection}
+        ></lightning-button>
+        <lightning-button
+          label="Cancel"
+          variant="brand-outline"
+          onclick={handleCancelSave}
+        ></lightning-button>
+      </div>
+    </div>
+  </section>
+  <div class="slds-grid slds-gutters">
+    <div class="slds-col slds-size_1-of-6 slds-box pallet">
+      <span>
+        <lightning-accordion active-section-name="formElement">
+          <lightning-accordion-section name="formElement" label="Form Elements">
+            <ul class="slds-has-dividers_around-space" style="width: 10rem">
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="section"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:section"
+                  alternative-text="Section"
+                  title="Please drag and drop on form to add a section"
+                ></lightning-icon>
+                &nbsp; Section
+              </li>
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="field"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:insert_tag_field"
+                  alternative-text="Field"
+                  title="Please drag and drop on form to add a field"
+                ></lightning-icon>
+                &nbsp; Field
+              </li>
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="formula"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:formula"
+                  alternative-text="Formula"
+                  title="Please drag and drop on form to add a Formula field"
+                ></lightning-icon>
+                &nbsp; Formula Field
+              </li>
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="action"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:connected_apps"
+                  alternative-text="Action"
+                  title="Please drag and drop on form to add an action"
+                ></lightning-icon>
+                &nbsp; Action
+              </li>
+            </ul>
+          </lightning-accordion-section>
+        </lightning-accordion>
+      </span>
+    </div>
+    <div class="slds-col slds-size_5-of-6 slds-box formContainer">
+      <span>
+        <div class="slds-grid slds-gutters slds-grid_vertical">
+          <div
+            class="slds-col slds-box templateActionRegion"
+            ondragover={handleDragOverAction}
+          >
+            <div class="centeredDiv">
+              <b>Please drop actions here to add to the form template</b>
+            </div>
+            <div class="centeredDiv">
+              <lightning-icon
+                data-id="action"
+                icon-name="utility:add"
+                class="slds-hide"
+              ></lightning-icon>
+            </div>
+            <div class="centeredDiv">
+              <lightning-icon
+                data-id="action"
+                icon-name="utility:ban"
+                class="slds-hide"
+              ></lightning-icon>
+            </div>
+            <template lwc:if={formTemplate.relatedFormActions}>
+              <!--Render existing form actions here-->
+            </template>
+          </div>
+          <br />
+          <div
+            class="slds-col slds-box sectionPlaceholder"
+            ondragover={handleDragOverSection}
+          >
+            <div class="centeredDiv">
+              <b
+                >Please drop Sections, Fields, Formula Fields here to add to the
+                form template</b
+              >
+            </div>
+            <div class="centeredDiv">
+              <lightning-icon
+                data-id="nonAction"
+                icon-name="utility:add"
+                class="slds-hide"
+              ></lightning-icon>
+            </div>
+            <div class="centeredDiv">
+              <lightning-icon
+                data-id="nonAction"
+                icon-name="utility:ban"
+                class="slds-hide"
+              ></lightning-icon>
+            </div>
+            <template lwc:if={formTemplate.formSections}>
+              <!--Render existing sections here-->
+            </template>
+          </div>
+        </div>
+      </span>
+    </div>
+  </div>
+</template>

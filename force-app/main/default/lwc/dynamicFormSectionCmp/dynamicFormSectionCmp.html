@@ -1,0 +1,64 @@
+<template>
+  <template if:true={openEditBox}>
+    <!--Open section edit box-->
+    <section
+      role="dialog"
+      tabindex="-1"
+      aria-modal="true"
+      aria-labelledby="modal-heading-01"
+      class="slds-modal slds-fade-in-open"
+    >
+      <div class="slds-modal__container">
+        <div class="slds-modal__header">
+          <h1 id="modal-heading-01" class="slds-modal__title slds-hyphenate">
+            Create Section
+          </h1>
+        </div>
+        <div
+          class="slds-modal__content slds-p-around_medium"
+          id="modal-content-id-1"
+        >
+          <div class="slds-box">
+            <lightning-input
+              name="sectionname"
+              label="Section Name"
+              value={eachSectionData.Name}
+            ></lightning-input>
+            <lightning-combobox
+              lwc:if={eachSectionData.Dynamic_Forms__Parent_Form_Section__c}
+              name="sectiontype"
+              value={eachSectionData.Dynamic_Forms__Section_Type__c}
+              label="Section Type"
+              options=""
+            ></lightning-combobox>
+            <lightning-combobox
+              name="sectiontype"
+              value={eachSectionData.Dynamic_Forms__Section_Grid__c}
+              label="Grid Type"
+              options=""
+            ></lightning-combobox>
+          </div>
+        </div>
+        <div class="slds-modal__footer">
+          <lightning-button
+            label="Save"
+            class="slds-button_brand"
+            onclick={saveSection}
+          ></lightning-button>
+          <lightning-button
+            label="Cancel"
+            class="slds-button_neutral"
+            onclick={handleCancelSave}
+          ></lightning-button>
+        </div>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+  </template>
+  <template if:false={openEditBox}>
+    <!--Render dummy fields -->
+    <template lwc:if={eachSectionData.Id}>
+      <div class="slds-box centeredDiv">{eachSectionData.Name}</div>
+    </template>
+  </template>
+</template>

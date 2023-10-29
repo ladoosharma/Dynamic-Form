@@ -158,19 +158,20 @@ export default class MergeFieldCreatorCmp extends LightningElement {
   appendToTheArgument(makeDefault) {
     const texAreaFld = this.template.querySelector("lightning-textarea");
     const argsSelecetd = this.template.querySelector("lightning-combobox");
-    const regexStringWithMatch = `( )(${argsSelecetd.value})( ,|\\{(.+?)\\}|,)`;
+    //const regexStringWithMatch = `( )(${argsSelecetd.value})( ,|\\{(.+?)\\}|,)`;
     const newPath =
       this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath;
+    let newargumentPath = texAreaFld.value
+      .split(",")
+      .reduce((prevArg, eachArgs) => {
+        prevArg += eachArgs.includes(argsSelecetd.value)
+          ? `${eachArgs.split("{")[0]}{!${newPath}} , `
+          : `${eachArgs} , `;
+        return prevArg;
+      }, "");
     texAreaFld.value = makeDefault
-      ? texAreaFld.value.replace(
-          new RegExp(regexStringWithMatch),
-          (match, P1, P2, P3) => {
-            console.debug(P2);
-            console.debug(P3);
-            return `${P2}{${newPath}}${P3 === " ," || P3 === "," ? "," : ""}`;
-          }
-        )
-      : this.argumetList; //   argsSelecetd.value,
+      ? newargumentPath.substring(0, newargumentPath.length - 2)
+      : this.argumetList;
 
     /** send the custom event and  */
     this.dispatchEvent(
@@ -181,8 +182,13 @@ export default class MergeFieldCreatorCmp extends LightningElement {
     const lookupInputContainer = this.template.querySelector(
       ".lookupInputContainer"
     );
-    const clsList = lookupInputContainer.classList;
+    const clsList = lookupInputContainer
+      ? lookupInputContainer.classList
+      : undefined;
     const whichEvent = evt.target.getAttribute("data-source");
+    if (!clsList) {
+      return;
+    }
     switch (whichEvent) {
       case "searchInputField":
         clsList.add("slds-is-open");
@@ -234,7 +240,7 @@ export default class MergeFieldCreatorCmp extends LightningElement {
       this.currentFieldPath[
         this.currentFieldPath.length - 1
       ].currentlySelected = false;
-      this.currentObjectInfo = undefined;
+      //this.currentObjectInfo = undefined;
       this.tempObj =
         this.currentFieldPath[this.currentFieldPath.length - 1].currentObject;
       this.currentFieldPath[this.currentFieldPath.length - 1].fieldPath =
@@ -252,7 +258,6 @@ export default class MergeFieldCreatorCmp extends LightningElement {
           this.currentFieldPath.length - 1
         ].isChildRelationShip;
     }
-    this.appendToTheArgument(false);
   }
   get argsList() {
     /** here split the args and make it as picklist */

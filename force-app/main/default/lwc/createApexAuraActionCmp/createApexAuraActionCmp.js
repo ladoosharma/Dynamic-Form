@@ -105,9 +105,12 @@ export default class CreateApexAuraActionCmp extends LightningElement {
     this.formActionData[evt.target.dataset.field] = evt.target.value;
   }
   submitform() {
+    const copyRecord = JSON.parse(JSON.stringify(this.formActionData));
+    delete copyRecord.Dynamic_Forms__Apex_Aura_Action__r;
     if (this.actionId) {
       /**update the record , or create a new one */
-      updateRecord({ fields: this.formActionData })
+
+      updateRecord({ fields: copyRecord })
         .then((saveData) => {
           //handle success message
           console.debug(saveData);
@@ -119,7 +122,7 @@ export default class CreateApexAuraActionCmp extends LightningElement {
     } else {
       /** create new record */
       createRecord({
-        fields: this.formActionData,
+        fields: copyRecord,
         apiName: "Dynamic_Forms__Form_Action__c"
       })
         .then((saveData) => {
