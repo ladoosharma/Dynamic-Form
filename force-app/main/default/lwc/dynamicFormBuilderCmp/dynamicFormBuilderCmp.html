@@ -1,6 +1,6 @@
 <template>
   <section
-    if:false={tempFormId}
+    if:false={openEditFormTemplate}
     role="dialog"
     tabindex="-1"
     aria-modal="true"
@@ -57,7 +57,7 @@
       </div>
     </div>
   </section>
-  <div class="slds-grid slds-gutters">
+  <div class="slds-grid slds-gutters" style="background: white">
     <div class="slds-col slds-size_1-of-6 slds-box pallet">
       <span>
         <lightning-accordion active-section-name="formElement">
@@ -111,66 +111,108 @@
                 ></lightning-icon>
                 &nbsp; Action
               </li>
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="dependencies"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:sync"
+                  alternative-text="Action"
+                  title="Please drag and drop on form to add an dependencies"
+                ></lightning-icon>
+                &nbsp; Dependency
+              </li>
+              <li class="slds-item">
+                <lightning-icon
+                  draggable="true"
+                  data-element="table"
+                  ondragstart={setData}
+                  ondragend={resetDragElement}
+                  icon-name="utility:table"
+                  alternative-text="Action"
+                  title="Please drag and drop on form to add an child table"
+                ></lightning-icon>
+                &nbsp; Child Table
+              </li>
             </ul>
           </lightning-accordion-section>
         </lightning-accordion>
       </span>
     </div>
-    <div class="slds-col slds-size_5-of-6 slds-box formContainer">
+    <div
+      if:true={formTemplate.formTemplate}
+      class="slds-col slds-size_5-of-6 slds-box formContainer"
+    >
       <span>
         <div class="slds-grid slds-gutters slds-grid_vertical">
-          <div
-            class="slds-col slds-box templateActionRegion"
-            ondragover={handleDragOverAction}
-          >
-            <div class="centeredDiv">
-              <b>Please drop actions here to add to the form template</b>
-            </div>
-            <div class="centeredDiv">
-              <lightning-icon
-                data-id="action"
-                icon-name="utility:add"
-                class="slds-hide"
-              ></lightning-icon>
-            </div>
-            <div class="centeredDiv">
-              <lightning-icon
-                data-id="action"
-                icon-name="utility:ban"
-                class="slds-hide"
-              ></lightning-icon>
-            </div>
-            <template lwc:if={formTemplate.relatedFormActions}>
-              <!--Render existing form actions here-->
-            </template>
-          </div>
+          <!-- <div class="slds-col slds-box templateActionRegion">
+            <c-drop-zone-cmp
+              placed-inside-type="Template"
+              relevant-id-of-placeholder={formTemplate.formTemplate.Id}
+              ondropped={handleDropOfElement}
+            ></c-drop-zone-cmp>
+          </div> -->
           <br />
-          <div
-            class="slds-col slds-box sectionPlaceholder"
-            ondragover={handleDragOverSection}
-          >
-            <div class="centeredDiv">
-              <b
-                >Please drop Sections, Fields, Formula Fields here to add to the
-                form template</b
-              >
-            </div>
-            <div class="centeredDiv">
-              <lightning-icon
-                data-id="nonAction"
-                icon-name="utility:add"
-                class="slds-hide"
-              ></lightning-icon>
-            </div>
-            <div class="centeredDiv">
-              <lightning-icon
-                data-id="nonAction"
-                icon-name="utility:ban"
-                class="slds-hide"
-              ></lightning-icon>
-            </div>
+          <div class="slds-col slds-box sectionPlaceholder">
+            <c-drop-zone-cmp
+              placed-inside-type="Template"
+              relevant-id-of-placeholder={formTemplate.formTemplate.Id}
+              ondropped={handleDropOfElement}
+            >
+            </c-drop-zone-cmp>
             <template lwc:if={formTemplate.formSections}>
               <!--Render existing sections here-->
+              <c-dynamic-tab-cmp
+                iterator-object={formTemplate.formSections}
+                allow-drag-drop="true"
+                place-holder-cmp-name="dynamicFormSectionCmp"
+                ondropped={handleDropOfElement}
+                tab-type={formTemplate.formTemplate.Dynamic_Forms__Form_Section_Type__c}
+              ></c-dynamic-tab-cmp>
+              <!--<template lwc:if={sectionTypeObj.isAccordion}>-->
+              <!-- render in accordion-->
+              <!-- <lightning-accordion class="example-accordion">
+                  <template for:each={formTemplate.formSections} for:item="section" for:index="sectionNum">
+                    <lightning-accordion-section key={section.formSection.Id} name={section.formSection.Id}
+                      label={section.formSection.Name}>
+                      <c-dynamic-form-section-cmp section-index={sectionNum}
+                        each-section-data={section}></c-dynamic-form-section-cmp>
+                    </lightning-accordion-section>
+                    <c-drop-zone-cmp key={section.formSection.Id} relevant-id-of-placeholder={section.formSection.Id}
+                      placed-inside-type="Template" disable-action-drop="true" ondropped={handleDropOfElement}>
+                    </c-drop-zone-cmp>
+                  </template>
+                </lightning-accordion> -->
+              <!--</template>-->
+              <!--<template lwc:if={sectionTypeObj.isVertical}>-->
+              <!-- render in vertical tab-->
+              <!-- <lightning-tabset variant="vertical">
+                  <template for:each={formTemplate.formSections} for:item="section" for:index="sectionNum">
+                    <lightning-tab key={section.formSection.Id} label={section.formSection.Name}>
+                      <c-dynamic-form-section-cmp section-index={sectionNum}
+                        each-section-data={section}></c-dynamic-form-section-cmp>
+                      <c-drop-zone-cmp relevant-id-of-placeholder={section.formSection.Id} placed-inside-type="Template"
+                        disable-action-drop="true" ondropped={handleDropOfElement}>
+                      </c-drop-zone-cmp>
+                    </lightning-tab>
+                  </template>
+                </lightning-tabset> -->
+              <!--</template>-->
+              <!--<template lwc:if={sectionTypeObj.isHorizontal}>-->
+              <!-- render in horizontal tab-->
+              <!--<lightning-tabset>
+                  <template for:each={formTemplate.formSections} for:item="section" for:index="sectionNum">
+                    <lightning-tab key={section.formSection.Id} label={section.formSection.Name}>
+                      <c-dynamic-form-section-cmp section-index={sectionNum}
+                        each-section-data={section}></c-dynamic-form-section-cmp>
+                      <c-drop-zone-cmp relevant-id-of-placeholder={section.formSection.Id} placed-inside-type="Template"
+                        disable-action-drop="true" ondropped={handleDropOfElement}>
+                      </c-drop-zone-cmp>
+                    </lightning-tab>
+                  </template>
+                </lightning-tabset>-->
+              <!--</template>-->
             </template>
           </div>
         </div>

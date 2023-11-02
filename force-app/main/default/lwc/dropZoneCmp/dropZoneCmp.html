@@ -1,0 +1,32 @@
+<template>
+  <div
+    lwc:if={pageRef}
+    data-id="dropZone"
+    class="slds-col"
+    ondrop={handleDrop}
+    ondragover={handleDragOverAction}
+  >
+    <div class="centeredDiv slds-hide">
+      <!--<b>{dropText}</b>-->
+    </div>
+    <div class="centeredDiv slds-hide">
+      <lightning-icon
+        if:true={isActiveDropZone}
+        data-id="action"
+        icon-name="utility:add"
+        class=""
+      ></lightning-icon>
+    </div>
+    <div class="centeredDiv slds-hide">
+      <lightning-icon
+        if:false={isActiveDropZone}
+        data-id="action"
+        icon-name="utility:ban"
+        class=""
+      ></lightning-icon>
+    </div>
+    <slot name="placeholder">
+      <!--inside slot child componet goes-->
+    </slot>
+  </div>
+</template>

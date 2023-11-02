@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>SampleMessageChannel</masterLabel>
+    <isExposed>true</isExposed>
+    <description
+  >This is a Messagin channel for transmitting values across dynamic form</description>
+    <lightningMessageFields>
+        <fieldName>whatIsDragged</fieldName>
+        <description>what is dragged when doing edit</description>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>draggedElementId</fieldName>
+        <description>Id of the element which is being dragged</description>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>whereItsPlaced</fieldName>
+        <description>The place where drop zone is put</description>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>droppedOnElementId</fieldName>
+        <description>The place where drop has happended</description>
+    </lightningMessageFields>
+</LightningMessageChannel>

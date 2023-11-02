@@ -57,8 +57,64 @@
   </template>
   <template if:false={openEditBox}>
     <!--Render dummy fields -->
-    <template lwc:if={eachSectionData.Id}>
-      <div class="slds-box centeredDiv">{eachSectionData.Name}</div>
+    <template lwc:if={eachSectionData.formSection.Id}>
+      <div class="slds-box centeredDiv">
+        {eachSectionData.formSection.Name}
+        <c-drop-zone-cmp
+          relevant-id-of-placeholder={eachSectionData.formSection.Id}
+          placed-inside-type="Section"
+          ondropped={handleDropOfElement}
+        >
+        </c-drop-zone-cmp>
+        <div class="centeredDiv" lwc:if={hasChildSection}>
+          <c-dynamic-tab-cmp
+            iterator-object={eachSectionData.childFormSection}
+            allow-drag-drop="true"
+            place-holder-cmp-name="dynamicFormSectionCmp"
+            tab-type={eachSectionData.formSection.Dynamic_Forms__Section_Type__c}
+          ></c-dynamic-tab-cmp>
+          <!-- <template lwc:if={sectionTypeObj.isAccordion}>
+            
+            <lightning-accordion class="example-accordion" active-section-name={activeTab}>
+              <template for:each={eachSectionData.childFormSection} for:item="childSection" for:index="childIndex">
+                <lightning-accordion-section key={childSection.formSection.Id} name={childSection.formSection.Id}
+                  label={childSection.formSection.Name}>
+                  <c-dynamic-form-section-cmp ection-index={childIndex}
+                    each-section-data={childSection}></c-dynamic-form-section-cmp>
+                </lightning-accordion-section>
+              </template>
+            </lightning-accordion>
+          </template>
+          <template lwc:if={sectionTypeObj.isVertical}>
+            
+            <lightning-tabset variant="vertical" active-tab-value={activeTab}>
+              <template for:each={eachSectionData.childFormSection} for:item="childSection" for:index="childIndex">
+                <lightning-tab key={childSection.formSection.Id} label={childSection.formSection.Name}
+                  value={childSection.formSection.Id}>
+                  <c-dynamic-form-section-cmp ection-index={childIndex}
+                    each-section-data={childSection}></c-dynamic-form-section-cmp>
+                </lightning-tab>
+              </template>
+            </lightning-tabset>
+          </template>
+          <template lwc:if={sectionTypeObj.isHorizontal}>
+            
+            <lightning-tabset active-tab-value={activeTab}>
+              <template for:each={eachSectionData.childFormSection} for:item="childSection" for:index="childIndex">
+                <lightning-tab key={childSection.formSection.Id} label={childSection.formSection.Name}
+                  value={childSection.formSection.Id}>
+                  <c-dynamic-form-section-cmp section-index={childIndex}
+                    each-section-data={childSection}></c-dynamic-form-section-cmp>
+                </lightning-tab>
+              </template>
+            </lightning-tabset>
+          </template> -->
+        </div>
+        <!-- <template lwc:if={hasChildSection}>
+          <c-drop-zone-cmp relevant-id-of-placeholder={eachSectionData.formSection.Id} placed-inside-type="Section"
+            ondropped={handleDropOfElement}></c-drop-zone-cmp>
+        </template> -->
+      </div>
     </template>
   </template>
 </template>
