@@ -8,12 +8,19 @@ import { getPicklistValues } from "lightning/uiObjectInfoApi";
 import FORM_TYPE from "@salesforce/schema/Form_Template__c.Form_Type__c";
 import FORM_SECTION_TYPE from "@salesforce/schema/Form_Template__c.Form_Section_Type__c";
 import DYNAMIC_CHANNEL from "@salesforce/messageChannel/dynamicFormChannel__c";
-import { publish, MessageContext } from "lightning/messageService";
+import {
+  publish,
+  MessageContext,
+  subscribe,
+  APPLICATION_SCOPE,
+  unsubscribe
+} from "lightning/messageService";
 const NONE_PICKLIST = { value: "", label: "--None--" };
 export default class DynamicFormBuilderCmp extends LightningElement {
   @api formTemplateId = "a005j00000Pp284AAB";
   tempFormId;
   @track formTemplate = {};
+  currentActiveSectionNumber;
   @wire(MessageContext)
   messageContext;
   activeTab;
@@ -25,6 +32,7 @@ export default class DynamicFormBuilderCmp extends LightningElement {
     isVertical: false,
     isHorizontal: false
   };
+  subscription;
   connectedCallback() {
     this.tempFormId = this.formTemplateId;
     this.openEditFormTemplate =
@@ -32,6 +40,23 @@ export default class DynamicFormBuilderCmp extends LightningElement {
     if (!this.pageRef) {
       this.pageRef = { attributes: { url: window.location.href } };
     }
+    this.subscription = subscribe(
+      this.messageContext,
+      DYNAMIC_CHANNEL,
+      (data) => {
+        if (data) {
+          if (data.refreshData) {
+            refreshApex(this.formTemplateObj);
+          }
+        }
+      },
+      {
+        scope: APPLICATION_SCOPE
+      }
+    );
+  }
+  disconnectedCallback() {
+    unsubscribe(this.subscription);
   }
   @wire(CurrentPageReference) pageRef;
   @wire(getCurrentTemplate, { templateId: "$tempFormId" })
@@ -51,7 +76,10 @@ export default class DynamicFormBuilderCmp extends LightningElement {
       );
       this.formTemplate.formSections.forEach((eachSec, index) => {
         eachSec.formSection.tempId = eachSec.formSection.Id;
-        eachSec.formSection.isActiveSection = index === 0;
+        eachSec.formSection.isActiveSection =
+          index === 0 ||
+          this.currentActiveSectionNumber ===
+            eachSec.formSection.Dynamic_Forms__Section_Number__c;
         eachSec.childFormSection = eachSec.childFormSection.sort((a, b) => {
           return (
             a.formSection.Dynamic_Forms__Section_Number__c -
@@ -194,7 +222,8 @@ export default class DynamicFormBuilderCmp extends LightningElement {
           Dynamic_Forms__Form_Template__c: this.formTemplate.formTemplate.Id,
           Dynamic_Forms__Section_Number__c: 1,
           Name: `Section 1`,
-          isActiveSection: true
+          isActiveSection: true,
+          Id: Math.random().toFixed(18).toString()
         }
       });
     } else if (
@@ -214,7 +243,8 @@ export default class DynamicFormBuilderCmp extends LightningElement {
             Dynamic_Forms__Form_Template__c: this.formTemplate.formTemplate.Id,
             Dynamic_Forms__Section_Number__c: indexOnDropped + 2,
             Name: `Section ${indexOnDropped + 2}`,
-            isActiveSection: true
+            isActiveSection: true,
+            Id: Math.random().toFixed(18).toString()
           }
         });
       }

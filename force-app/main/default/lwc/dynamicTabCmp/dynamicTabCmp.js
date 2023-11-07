@@ -39,14 +39,14 @@ export default class DynamicTabCmp extends LightningElement {
     this.iteratorObjectTemp = JSON.parse(JSON.stringify(this.iteratingObj)).map(
       (element, index) => {
         const copyObj = JSON.parse(JSON.stringify(element));
-        copyObj.spread = this.propertiesToBeSentMap
+        copyObj.spreadObj = this.propertiesToBeSentMap
           .split(",")
           .reduce((prev, curr) => {
             prev[curr.split(":")[1]] =
               curr.split(":")[0] === "index"
                 ? index
                 : curr.split(":")[0] === "element"
-                ? copyObj
+                ? JSON.stringify(copyObj)
                 : copyObj[curr.split(":")[0]];
             return prev;
           }, {});

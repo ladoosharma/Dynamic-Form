@@ -47,6 +47,7 @@ public without sharing class DynamicFormCreatorController {
               Section_Grid__c,
               Section_Type__c,
               Parent_Form_Section__c,
+              Form_Template__c,
               (
                 SELECT
                   Id,
@@ -176,6 +177,61 @@ public without sharing class DynamicFormCreatorController {
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
     }
+  }
+  @AuraEnabled
+  public static void createSection(String sectionObject) {
+    try {
+      if (!String.isBlank(sectionObject)) {
+        Map<String, Object> parsedSection = (Map<String, Object>) JSON.deserializeUntyped(
+          sectionObject
+        );
+        if (parsedSection.containsKey('Id')) {
+          Object idValue = parsedSection.get('Id');
+          if (idValue instanceof Id) {
+            //case of update , and update th section
+            Form_Section__c sectionToUpdate = (Form_Section__c) JSON.deserialize(
+              sectionObject,
+              Form_Section__c.class
+            );
+            update sectionToUpdate;
+            rearrangeSectionAfterInsertOrUpdate(sectionToUpdate);
+          } else {
+            //case of insert
+            parsedSection.remove('Id');
+            Form_Section__c sectionToInsert = (Form_Section__c) JSON.deserialize(
+              JSON.serialize(parsedSection),
+              Form_Section__c.class
+            );
+            insert sectionToInsert;
+            rearrangeSectionAfterInsertOrUpdate(sectionToInsert);
+          }
+        } else {
+          throw new DynamicFormException('Id missing from the section Object');
+        }
+      }
+    } catch (Exception e) {
+      throw new AuraHandledException(e.getMessage());
+    }
+  }
+  private static void rearrangeSectionAfterInsertOrUpdate(
+    Form_Section__c modifiedSec
+  ) {
+    List<Form_Section__c> belowFormSection = [
+      SELECT Id, Section_Number__c
+      FROM Form_Section__c
+      WHERE
+        Section_Number__c >= :modifiedSec.Section_Number__c
+        AND Id != :modifiedSec.Id
+        AND ((Form_Template__c = :modifiedSec.Form_Template__c
+        AND Parent_Form_Section__c = NULL)
+        OR (Form_Template__c = NULL
+        AND Parent_Form_Section__c = :modifiedSec.Parent_Form_Section__c))
+      WITH SECURITY_ENFORCED
+    ];
+    for (Form_Section__c eachSec : belowFormSection) {
+      eachSec.Section_Number__c += 1;
+    }
+    update belowFormSection;
   }
   private static Map<String, List<sObject>> genericMapCreatorBasedOnKey(
     String key,

@@ -20,4 +20,8 @@
         <fieldName>droppedOnElementId</fieldName>
         <description>The place where drop has happended</description>
     </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>refreshData</fieldName>
+        <description>Refreshing the cmps for getting new data</description>
+    </lightningMessageFields>
 </LightningMessageChannel>
