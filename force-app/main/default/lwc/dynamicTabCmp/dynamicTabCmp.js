@@ -1,5 +1,6 @@
 import { LightningElement, api } from "lwc";
 export default class DynamicTabCmp extends LightningElement {
+  @api isEditActionAvaiable;
   @api set iteratorObject(value) {
     this.iteratingObj = value;
     if (this.tabObj) {
@@ -98,6 +99,30 @@ export default class DynamicTabCmp extends LightningElement {
           eachBody.classList.add("slds-is-active");
         }
       });
+    }
+  }
+  invokeEditClick(evt) {
+    evt.stopPropagation();
+    const tabIdclicked = evt.target.value;
+    if (tabIdclicked) {
+      const tabCmp = this.template.querySelector(
+        `[data-cmp='${tabIdclicked}']`
+      );
+      if (tabCmp.enableEdit) {
+        tabCmp.enableEdit();
+      }
+    }
+  }
+  invokeDelete(evt) {
+    evt.stopPropagation();
+    const tabIdclicked = evt.target.value;
+    if (tabIdclicked) {
+      const tabCmp = this.template.querySelector(
+        `[data-cmp='${tabIdclicked}']`
+      );
+      if (tabCmp.enableEdit) {
+        tabCmp.delteTheTab();
+      }
     }
   }
 }

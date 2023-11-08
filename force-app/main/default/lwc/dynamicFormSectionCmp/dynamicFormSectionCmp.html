@@ -75,6 +75,7 @@
         <div class="centeredDiv" lwc:if={hasChildSection}>
           <c-dynamic-tab-cmp
             ondropped={handleDropOfElement}
+            is-edit-action-avaiable="true"
             iterator-object={eachSectionData.childFormSection}
             allow-drag-drop="true"
             place-holder-cmp-name="dynamicFormSectionCmp"

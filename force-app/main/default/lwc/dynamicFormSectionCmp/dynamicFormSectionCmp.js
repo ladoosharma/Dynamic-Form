@@ -4,6 +4,7 @@ import SECTION_GRID from "@salesforce/schema/Form_Section__c.Section_Grid__c";
 import SECTION_TYPE from "@salesforce/schema/Form_Section__c.Section_Type__c";
 const NONE_PICKLIST = { value: "", label: "--None--" };
 import createSection from "@salesforce/apex/DynamicFormCreatorController.createSection";
+import deleteSectionAndDependencies from "@salesforce/apex/DynamicFormCreatorController.deleteSectionAndDependencies";
 import { publish, MessageContext } from "lightning/messageService";
 import DYNAMIC_CHANNEL from "@salesforce/messageChannel/dynamicFormChannel__c";
 
@@ -142,5 +143,22 @@ export default class DynamicFormSectionCmp extends LightningElement {
         }
       }
     }
+  }
+  @api enableEdit() {
+    this.openEditBox = true;
+  }
+  @api delteTheTab() {
+    //delete the tab and all the dependencies with it and refresh the tabs
+    deleteSectionAndDependencies({
+      sectionId: this.eachSectionData.formSection.Id
+    })
+      .then(() => {
+        publish(this.messageContext, DYNAMIC_CHANNEL, {
+          refreshData: true
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
   }
 }

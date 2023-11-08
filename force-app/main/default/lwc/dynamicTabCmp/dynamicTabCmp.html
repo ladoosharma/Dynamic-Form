@@ -1,6 +1,6 @@
 <template>
   <div lwc:if={tabObj.isHorizontal} class="slds-tabs_default">
-    <ul class="slds-tabs_default__nav" role="tablist">
+    <ul class="slds-tabs_default__nav slds-wrap" role="tablist">
       <template
         for:each={iteratorObjectTemp}
         for:item="eachObj"
@@ -22,8 +22,21 @@
             tabindex="0"
             aria-selected="true"
             aria-controls={eachObj.tempId}
-            >{eachObj.Name}</a
-          >
+            >{eachObj.Name} &nbsp;<lightning-icon
+              icon-name="utility:edit"
+              lwc:if={isEditActionAvaiable}
+              value={eachObj.tempId}
+              size="small"
+              onclick={invokeEditClick}
+            ></lightning-icon>
+            &nbsp;<lightning-icon
+              icon-name="utility:delete"
+              lwc:if={isEditActionAvaiable}
+              value={eachObj.tempId}
+              size="small"
+              onclick={invokeDelete}
+            ></lightning-icon
+          ></a>
         </li>
         <c-drop-zone-cmp
           lwc:if={allowDragDrop}
@@ -50,15 +63,17 @@
         aria-labelledby="tab-default-1__item"
       >
         <lwc:component
+          data-cmp={eachObj.tempId}
           lwc:is={placeHolderCmpConstructor}
           lwc:spread={eachObj.spreadObj}
-        ></lwc:component>
+        >
+        </lwc:component>
       </div>
     </template>
   </div>
   <div lwc:if={tabObj.isVertical} class="slds-vertical-tabs">
     <ul
-      class="slds-vertical-tabs__nav"
+      class="slds-vertical-tabs__nav slds-wrap"
       role="tablist"
       aria-orientation="vertical"
     >
@@ -82,8 +97,21 @@
             tabindex="0"
             aria-selected="true"
             aria-controls={eachObj.tempId}
-            >{eachObj.Name}</a
-          >
+            >{eachObj.Name} &nbsp;<lightning-icon
+              icon-name="utility:edit"
+              lwc:if={isEditActionAvaiable}
+              value={eachObj.tempId}
+              size="small"
+              onclick={invokeEditClick}
+            ></lightning-icon>
+            &nbsp;<lightning-icon
+              icon-name="utility:delete"
+              lwc:if={isEditActionAvaiable}
+              value={eachObj.tempId}
+              size="small"
+              onclick={invokeDelete}
+            ></lightning-icon
+          ></a>
         </li>
         <c-drop-zone-cmp
           lwc:if={allowDragDrop}
@@ -110,9 +138,11 @@
         aria-labelledby="tab-default-1__item"
       >
         <lwc:component
+          data-cmp={eachObj.tempId}
           lwc:is={placeHolderCmpConstructor}
           lwc:spread={eachObj.spreadObj}
-        ></lwc:component>
+        >
+        </lwc:component>
       </div>
     </template>
   </div>
@@ -128,10 +158,26 @@
           name={eachObj.tempId}
           label={eachObj.Name}
         >
+          &nbsp;<lightning-icon
+            icon-name="utility:edit"
+            lwc:if={isEditActionAvaiable}
+            value={eachObj.tempId}
+            size="small"
+            onclick={invokeEditClick}
+          ></lightning-icon>
+          &nbsp;<lightning-icon
+            icon-name="utility:delete"
+            lwc:if={isEditActionAvaiable}
+            value={eachObj.tempId}
+            size="small"
+            onclick={invokeDelete}
+          ></lightning-icon>
           <lwc:component
+            data-cmp={eachObj.tempId}
             lwc:is={placeHolderCmpConstructor}
             lwc:spread={eachObj.spreadObj}
-          ></lwc:component>
+          >
+          </lwc:component>
         </lightning-accordion-section>
       </template>
     </lightning-accordion>

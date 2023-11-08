@@ -75,7 +75,8 @@ public without sharing class DynamicFormCreatorController {
             Field_Validation_Regex__c,
             Formula__c,
             Required__c,
-            Type__c
+            Type__c,
+            Read_Only__c
           FROM Form_Field__c
           WHERE Field_Section__c IN :mapOfSection.keyset()
           WITH SECURITY_ENFORCED
@@ -176,6 +177,94 @@ public without sharing class DynamicFormCreatorController {
       return null;
     } catch (Exception e) {
       throw new AuraHandledException(e.getMessage());
+    }
+  }
+  @AuraEnabled
+  public static void deleteSectionAndDependencies(Id sectionId) {
+    if (!String.isBlank(sectionId)) {
+      List<Form_Field__c> allSectionFields = [
+        SELECT
+          Id,
+          (
+            SELECT Id
+            FROM Field_Dependent_Dependencies__r
+          ),
+          (
+            SELECT Id
+            FROM Field_Dependencies__r
+          ),
+          (
+            SELECT Id
+            FROM Field_Actions__r
+          )
+        FROM Form_Field__c
+        WHERE Field_Section__c = :sectionId
+        WITH SECURITY_ENFORCED
+      ];
+      Map<Id, Form_Action__c> sectionAction = new Map<Id, Form_Action__c>(
+        [
+          SELECT Id
+          FROM Form_Action__c
+          WHERE Section_Action__c = :sectionId
+          WITH SECURITY_ENFORCED
+        ]
+      );
+      Map<Id, Form_Dependency__c> sectionDependecies = new Map<Id, Form_Dependency__c>(
+        [
+          SELECT Id
+          FROM Form_Dependency__c
+          WHERE Dependent_Section__c = :sectionId
+          WITH SECURITY_ENFORCED
+        ]
+      );
+      List<Form_Field__c> fieldToDelete = new List<Form_Field__c>();
+      Form_Field__c tempField;
+      if (!allSectionFields.isEmpty()) {
+        for (Form_Field__c eachField : allSectionFields) {
+          tempField = new Form_Field__c(Id = eachField.Id);
+          fieldToDelete.add(tempField);
+          if (eachField.Field_Dependent_Dependencies__r != null) {
+            sectionDependecies.putAll(
+              new Map<Id, Form_Dependency__c>(
+                eachField.Field_Dependent_Dependencies__r
+              )
+            );
+          }
+          if (eachField.Field_Dependencies__r != null) {
+            sectionDependecies.putAll(
+              new Map<Id, Form_Dependency__c>(eachField.Field_Dependencies__r)
+            );
+          }
+          if (eachField.Field_Actions__r != null) {
+            sectionAction.putAll(
+              new Map<Id, Form_Action__c>(eachField.Field_Actions__r)
+            );
+          }
+        }
+      }
+      if (
+        !sectionDependecies.isEmpty() &&
+        Schema.Form_Dependency__c.sObjectType.getDescribe().isDeletable()
+      ) {
+        delete sectionDependecies.values();
+      }
+      if (
+        !sectionAction.isEmpty() &&
+        Schema.Form_Action__c.sObjectType.getDescribe().isDeletable()
+      ) {
+        delete sectionAction.values();
+      }
+      if (
+        !fieldToDelete.isEmpty() &&
+        Schema.Form_Field__c.sObjectType.getDescribe().isDeletable()
+      ) {
+        delete fieldToDelete;
+      }
+      if (Schema.Form_Section__c.sObjectType.getDescribe().isDeletable()) {
+        delete new Form_Section__c(Id = sectionId);
+      }
+    } else {
+      throw new DynamicFormException('Section Id missing.');
     }
   }
   @AuraEnabled

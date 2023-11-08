@@ -1,0 +1,4 @@
+lightning-icon:hover {
+  background-color: aquamarine;
+  transition: background-color 500ms linear;
+}
