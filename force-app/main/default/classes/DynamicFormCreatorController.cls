@@ -76,7 +76,8 @@ public without sharing class DynamicFormCreatorController {
             Formula__c,
             Required__c,
             Type__c,
-            Read_Only__c
+            Read_Only__c,
+            Field_Label__c
           FROM Form_Field__c
           WHERE Field_Section__c IN :mapOfSection.keyset()
           WITH SECURITY_ENFORCED
